@@ -1,0 +1,22 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import EssayCard from "../../components/EssayCard.astro";
+import { getCollection } from "astro:content";
+
+const essays = (await getCollection("essays"))
+  .filter((entry) => !entry.data.draft)
+  .sort(
+    (a, b) =>
+      b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+  );
+---
+
+<BaseLayout title="Essays" description="All essays in the Marginalia library.">
+  <h1>All Essays</h1>
+  <p class="article-meta">{essays.length} essays, newest first.</p>
+  <div class="article-list">
+    {essays.map((entry) => (
+      <EssayCard entry={entry} />
+    ))}
+  </div>
+</BaseLayout>

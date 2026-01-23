@@ -1,0 +1,43 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import EssayCard from "../components/EssayCard.astro";
+import { getCollection } from "astro:content";
+
+const essays = (await getCollection("essays"))
+  .filter((entry) => !entry.data.draft)
+  .sort(
+    (a, b) =>
+      b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+  );
+
+const featured = essays.filter((entry) => entry.data.featured);
+const latest = essays.slice(0, 5);
+---
+
+<BaseLayout description="Short essays on reading, software, and attention.">
+  <h1>Marginalia</h1>
+  <p>
+    A small collection of essays about reading, software, and the kinds of
+    work that benefit from patience.
+  </p>
+
+  {featured.length ? (
+    <section>
+      <h2>Featured</h2>
+      <div class="article-list">
+        {featured.map((entry) => (
+          <EssayCard entry={entry} />
+        ))}
+      </div>
+    </section>
+  ) : null}
+
+  <section>
+    <h2>Latest</h2>
+    <div class="article-list">
+      {latest.map((entry) => (
+        <EssayCard entry={entry} />
+      ))}
+    </div>
+  </section>
+</BaseLayout>

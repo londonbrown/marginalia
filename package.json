@@ -1,0 +1,15 @@
+{
+  "name": "marginalia",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev:web": "npm --workspace apps/web run dev",
+    "build:web": "npm --workspace apps/web run build",
+    "preview:web": "npm --workspace apps/web run preview",
+    "build:cdk": "npm --workspace apps/cdk run build",
+    "deploy:cdk": "npm --workspace apps/cdk run deploy",
+    "synth:cdk": "npm --workspace apps/cdk run synth"
+  }
+}

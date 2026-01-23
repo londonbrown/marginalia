@@ -1,0 +1,20 @@
+---
+const { entry } = Astro.props;
+const formattedDate = new Intl.DateTimeFormat("en-US", {
+  year: "numeric",
+  month: "long",
+  day: "numeric"
+}).format(entry.data.pubDate);
+const tags = entry.data.tags?.length ? entry.data.tags.join(" · ") : null;
+---
+
+<article class="article-card">
+  <h2>
+    <a href={`/essays/${entry.slug}/`}>{entry.data.title}</a>
+  </h2>
+  <p class="article-meta">
+    {formattedDate}
+    {tags ? ` · ${tags}` : ""}
+  </p>
+  <p>{entry.data.description}</p>
+</article>
