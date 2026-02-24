@@ -4,6 +4,9 @@ import {
   AllowedMethods,
   CachedMethods,
   Distribution,
+  Function,
+  FunctionCode,
+  FunctionEventType,
   PriceClass,
   ViewerProtocolPolicy
 } from "aws-cdk-lib/aws-cloudfront";
@@ -41,6 +44,27 @@ export class MarginaliaStack extends Stack {
       validation: CertificateValidation.fromDns(zone)
     });
 
+    const pathRewrite = new Function(this, "PathRewriteFunction", {
+      code: FunctionCode.fromInline(`
+function handler(event) {
+  var request = event.request;
+  var uri = request.uri;
+
+  if (uri.endsWith("/")) {
+    request.uri = uri + "index.html";
+    return request;
+  }
+
+  if (!uri.includes(".")) {
+    request.uri = uri + "/index.html";
+    return request;
+  }
+
+  return request;
+}
+      `.trim())
+    });
+
     const distribution = new Distribution(this, "SiteDistribution", {
       defaultRootObject: "index.html",
       domainNames: [siteDomain],
@@ -50,7 +74,13 @@ export class MarginaliaStack extends Stack {
         origin: S3BucketOrigin.withOriginAccessControl(bucket),
         viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
         allowedMethods: AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
-        cachedMethods: CachedMethods.CACHE_GET_HEAD_OPTIONS
+        cachedMethods: CachedMethods.CACHE_GET_HEAD_OPTIONS,
+        functionAssociations: [
+          {
+            eventType: FunctionEventType.VIEWER_REQUEST,
+            function: pathRewrite
+          }
+        ]
       },
       errorResponses: [
         {
